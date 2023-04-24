@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.patches as patches
 import matplotlib.collections as collections
-from IPython.display import HTML
 
 def neumann_BC_y(psi,f=0,g=0,dx=0.01):
     psi[0,:] = psi[2,:] - 2*dx*f
@@ -51,110 +50,65 @@ def y_boundary_conditions(psi,psi_prev=None,ytype='n',yf=0,yg=0,dy=0,r=3):
         return dirichlet_BC_y(psi,yf,yg,dy)
     elif ytype == 'a':
         return absorbing_BC_y(psi,psi_prev,r)
-    raise Exception("xtype and ytype must be either 'n' or 'd'")
-
-# Single Slit Barrier
-single_slit_position = 0.65
-single_slit_width = 0.05
-single_slit_height = 0.2
-single_slit_patch1 = patches.Rectangle((0.65,0),0.05,0.4,color='k')
-single_slit_patch2 = patches.Rectangle((0.65,0.6),0.05,0.4,color='k')
-ss_patches = collections.PatchCollection([single_slit_patch1,single_slit_patch2],color='k')
-def single_slit(psi,x,y):
-    if (single_slit_position <= x and \
-        x <= single_slit_position + single_slit_width and\
-        (y <= 0.5 - single_slit_height/2 or y >= 0.5 + single_slit_height/2)):
-        return 0
-    else:
-        return psi
-
-def single_slit_slow(psi=None,x=None,y=None):
-    x_position = 0.65
-    width = 0.05
-    height = 0.2
-    barrier = [patches.Rectangle((x_position,0),width,(1-height)/2),\
-               patches.Rectangle((x_position,0.6),width,(1-height)/2)]
-    patch_collection = collections.PatchCollection(barrier,color='k')
-    if psi != None:
-        for patch in barrier:
-            if patch.contains_point((x,y)):
-                return 0
-            else:
-                return psi
-    else:
-        return patch_collection
-
-def double_slit_slow(psi=None,x=None,y=None):
-    x_position = 0.65
-    width = 0.05
-    height = 0.2
-    barrier = [patches.Rectangle((x_position,0),width,(0.5-height)/2),\
-               patches.Rectangle((x_position,(0.5-height)/2+height),width,(1-height)/2-height/2),\
-               patches.Rectangle((x_position,(1-height)/2-3*height/2), width, 1)]
-    patch_collection = collections.PatchCollection(barrier,color='k')
-    if psi != None:
-        for patch in barrier:
-            if patch.contains_point((x,y)):
-                return 0
-            else:
-                return psi
-    else:
-        return patch_collection
+    raise Exception("xtype and ytype must be either 'n' or 'd' or 'a'")
 
 
-nx = 101; ny = 101; velocity = 1
+def n_slit_barrier(x,y,position,n_slits,slit_dims):
+    horiz_mask = (position < x[0,:]).astype(int)
+    horiz_mask *= (x[0,:] < position + slit_dims[0]).astype(int)
+    vert_mask = np.heaviside((y - 1/(n_slits+1))+slit_dims[1],1) *\
+            np.heaviside(-(y - 1/(n_slits+1))+slit_dims[1],1)
+    for i in range(1,n_slits):
+        vert_mask += np.heaviside((y - (i+1)/(n_slits+1))+slit_dims[1],1) *\
+            np.heaviside(-(y - (i+1)/(n_slits+1))+slit_dims[1],1)
+    return np.logical_not((np.logical_not(vert_mask) * horiz_mask)).astype(int)
+
+
+nx = 501; ny = 501; velocity = 1
 x = np.linspace(0,1,nx)
 y = np.linspace(0,1,ny)
 grid_x, grid_y = np.meshgrid(x,y)
 dx = 1/nx; dy = 1/ny; dt = dx/2
-u = np.exp(-(10*(grid_x-0.2))**2) * np.cos(100*grid_x)
+u_0 = np.exp(-(10*(grid_x-0.2))**2) * np.cos(100*grid_x)
 u_1 = np.exp(-(10*(grid_x-0.2 + velocity*dt))**2) * np.cos(100*(grid_x + velocity*dt))
-u = x_boundary_conditions(u,xtype='n')
-u = y_boundary_conditions(u,ytype='n')
-u_1 = x_boundary_conditions(u_1,xtype='n')
-u_1 = y_boundary_conditions(u_1,ytype='n')
-fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
-plt.pcolor(grid_x,grid_y,u)
-ax.add_collection(single_slit_slow())
-plt.clim(-1,1)
+u = np.array([u_0, u_1, u_1])
+for i in range(3):
+    u[i,:,:] = x_boundary_conditions(u[i,:,:],xtype='n')
+    u[i,:,:] = y_boundary_conditions(u[i,:,:],ytype='n')
 
 a = []
+barrier = n_slit_barrier(grid_x,grid_y,0.5,1,(0.1,0.05))
 for t in range(0,500):
-    a.append(np.copy(u))
-    u_2 = np.copy(u_1)
-    u_1 = np.copy(u)
-    for i in range(1,nx-1):
-        for j in range(1,ny-1):
-            u[i,j] = 2*u_1[i,j] - u_2[i,j] + \
-                (u_1[i+1,j] - 2*u_1[i,j] + u_1[i-1,j] +\
-                u_1[i,j+1] - 2*u_1[i,j] + u_1[i,j-1])*(velocity*dt/dx)**2
-            u[i,j] = single_slit(u[i,j],grid_x[i,j],grid_y[i,j])
-    u = x_boundary_conditions(u,psi_prev=u_1,xtype='a',r=2)
-    u = y_boundary_conditions(u,ytype='n')
+    a.append(np.copy(u[0,:,:]))
+    u[2,:,:] = u[1,:,:]
+    u[1,:,:] = u[0,:,:]
+    u[0,1:nx-1,1:ny-1] = 2*u[1,1:nx-1,1:ny-1] - u[2,1:nx-1,1:ny-1] +\
+            (u[1,2:nx,1:ny-1] - 2*u[1,1:nx-1,1:ny-1] + u[1,0:nx-2,1:ny-1] +\
+             u[1,1:nx-1,2:ny] - 2*u[1,1:nx-1,1:ny-1] + u[1,1:nx-1,0:ny-2]) *\
+             (velocity*dt/dx)**2
+    u[0,:,:] *= barrier
+    u[0,:,:] = x_boundary_conditions(u[0,:,:],psi_prev=u[1,:,:],xtype='a',r=2)
+    u[0,:,:] = y_boundary_conditions(u[0,:,:],ytype='n')
     if t%100 == 0:
         print(t)
-
-
-
 
 plt.style.use('dark_background')
 
 fig = plt.figure()
 fig.set_dpi(100)
 ax1 = fig.add_subplot(1,1,1)
+psi = np.ones((nx,ny)) * float('nan')
+meshplot = plt.pcolormesh(grid_x,grid_y,psi)
+plt.clim(-1,1)
+plt.xlim([0,1])
+plt.ylim([0,1])
 k = 0
 
 def animate(i):
     global k
     psi = a[k]
+    meshplot.set_array(psi.ravel())
     k += 1
-    ax1.clear()
-    plt.pcolor(grid_x,grid_y,psi)
-    plt.clim(-1,1)
-    ax1.add_collection(single_slit_slow())
-    plt.ylim([0,1])
-    plt.xlim([0.0,1.0])
 
 anim = animation.FuncAnimation(fig,animate,frames=len(a)-2,interval=20)
-anim.save('2D_wave.gif')
+anim.save('2D_wave.gif',fps=30)
