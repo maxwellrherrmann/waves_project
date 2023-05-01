@@ -77,7 +77,7 @@ for i in range(3):
     u[i,:,:] = y_boundary_conditions(u[i,:,:],ytype='n')
 
 a = []
-barrier = n_slit_barrier(grid_x,grid_y,0.5,1,(0.1,0.05))
+barrier = n_slit_barrier(grid_x,grid_y,0.5,2,(0.1,0.05))
 for t in range(0,500):
     a.append(np.copy(u[0,:,:]))
     u[2,:,:] = u[1,:,:]
@@ -111,4 +111,4 @@ def animate(i):
     k += 1
 
 anim = animation.FuncAnimation(fig,animate,frames=len(a)-2,interval=20)
-anim.save('2D_wave.gif',fps=30)
+anim.save('doubleslit.gif',fps=30)
