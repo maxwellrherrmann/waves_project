@@ -4,42 +4,194 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 def neumann_BC_y(psi, f=0, g=0, dx=0.01):
+    """
+    Applies Neumann boundary conditions to the y-boundaries of the
+    wavefunction array. The function takes in the wavefunction array, psi,
+    and the values of the wavefunction at the boundaries, f and g, and the 
+    grid spacing, dx. The function returns the wavefunction matrix with the
+    Neumann boundary conditions applied to the y-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    f : float
+
+    g : float
+
+    dx : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     psi[0, :] = psi[2, :] - 2 * dx * f
     psi[-1, :] = psi[-3, :] - 2 * dx * g
     return psi
 
 
 def neumann_BC_x(psi, f=0, g=0, dx=0.01):
+    """
+    Applies Neumann boundary conditions to the x-boundaries of the
+    wavefunction array. The function takes in the wavefunction array, psi,
+    and the values of the wavefunction at the boundaries, f and g, and the
+    grid spacing, dx. The function returns the wavefunction matrix with the
+    Neumann boundary conditions applied to the x-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    f : float
+
+    g : float
+
+    dx : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     psi[:, 0] = psi[:, 2] - 2 * dx * f
     psi[:, -1] = psi[:, -3] - 2 * dx * g
     return psi
 
 
 def dirichlet_BC_y(psi, f=0, g=0, dx=0.01):
+    """
+    Applies Dirichlet boundary conditions to the y-boundaries of the
+    wavefunction array. The function takes in the wavefunction array, psi,
+    and the values of the wavefunction at the boundaries, f and g, and the
+    grid spacing, dx. The function returns the wavefunction matrix with the
+    Dirichlet boundary conditions applied to the y-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    f : float
+
+    g : float
+
+    dx : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     psi[0, :] = f
     psi[-1, :] = g
     return psi
 
 
 def dirichlet_BC_x(psi, f=0, g=0, dx=0.01):
+    """
+    Applies Dirichlet boundary conditions to the x-boundaries of the
+    wavefunction array. The function takes in the wavefunction array, psi,
+    and the values of the wavefunction at the boundaries, f and g, and the
+    grid spacing, dx. The function returns the wavefunction matrix with the
+    Dirichlet boundary conditions applied to the x-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    f : float
+
+    g : float
+
+    dx : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     psi[:, 0] = f
     psi[:, -1] = g
     return psi
 
 
 def absorbing_BC_x(psi, psi_prev, r):
+    """
+    Applies absorbing boundary conditions to the x-boundaries of the
+    wavefunction array. The function takes in the wavefunction array, psi,
+    the previous wavefunction array, psi_prev, and a constant r that determines
+    the strength of the absorbing boundary conditions. The function returns the 
+    wavefunction matrix with the absorbing boundary conditions applied to the 
+    x-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    psi_prev : numpy.ndarray
+
+    r : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     psi[:, 0] = psi_prev[:, 1] + ((r - 1) / (r + 1)) * (psi_prev[:, 2] - psi[:, 1])
     psi[:, -1] = psi_prev[:, -2] + ((r - 1) / (r + 1)) * (psi_prev[:, -1] - psi[:, -2])
     return psi
 
 
 def absorbing_BC_y(psi, psi_prev, r):
+    """
+    Applies absorbing boundary conditions to the y-boundaries of the
+    wavefunction array. The function takes in the wavefunction array, psi,
+    the previous wavefunction array, psi_prev, and a constant r that determines
+    the strength of the absorbing boundary conditions. The function returns the
+    wavefunction matrix with the absorbing boundary conditions applied to the
+    y-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    psi_prev : numpy.ndarray
+
+    r : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     psi[0, :] = psi_prev[1, :] + ((r - 1) / (r + 1)) * (psi_prev[2, :] - psi[1, :])
     psi[-1, :] = psi_prev[-2, :] + ((r - 1) / (r + 1)) * (psi_prev[-1, :] - psi[-2, :])
     return psi
 
 
 def x_boundary_conditions(psi, psi_prev=None, xtype='n', xf=0, xg=0, dx=0, r=3):
+    """
+    Applies boundary conditions to the x-boundaries of the wavefunction array.
+    The function takes in the wavefunction array, psi, the previous wavefunction
+    array, psi_prev, the type of boundary conditions, xtype, and the values of
+    the wavefunction at the boundaries, f and g, and the grid spacing, dx. The
+    function returns the wavefunction matrix with the boundary conditions
+    applied to the x-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    psi_prev : numpy.ndarray
+
+    xtype : str
+
+    xf : float
+
+    xg : float
+
+    dx : float
+
+    r : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     if xtype == 'n':
         return neumann_BC_x(psi, xf, xg, dx)
     elif xtype == 'd':
@@ -50,6 +202,34 @@ def x_boundary_conditions(psi, psi_prev=None, xtype='n', xf=0, xg=0, dx=0, r=3):
 
 
 def y_boundary_conditions(psi, psi_prev=None, ytype='n', yf=0, yg=0, dy=0, r=3):
+    """
+    Applies boundary conditions to the y-boundaries of the wavefunction array.
+    The function takes in the wavefunction array, psi, the previous wavefunction
+    array, psi_prev, the type of boundary conditions, ytype, and the values of
+    the wavefunction at the boundaries, f and g, and the grid spacing, dy. The
+    function returns the wavefunction matrix with the boundary conditions
+    applied to the y-boundaries.
+
+    Arguments
+    ----------
+    psi : numpy.ndarray
+
+    psi_prev : numpy.ndarray
+
+    ytype : str
+
+    yf : float
+
+    yg : float
+
+    dy : float
+
+    r : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     if ytype == 'n':
         return neumann_BC_y(psi, yf, yg, dy)
     elif ytype == 'd':
@@ -60,6 +240,28 @@ def y_boundary_conditions(psi, psi_prev=None, ytype='n', yf=0, yg=0, dy=0, r=3):
 
 
 def n_slit_barrier(x,y,position,n_slits,slit_dims):
+    """
+    Applies a barrier with n slits to the wavefunction array. The function
+    takes in the wavefunction array, psi, the position of the barrier, position,
+    the number of slits, n_slits, and the dimensions of the slits, slit_dims.
+    The function returns the wavefunction matrix with the barrier applied.
+
+    Arguments
+    ----------
+    x : numpy.ndarray
+    
+    y : numpy.ndarray
+
+    position : float
+
+    n_slits : int
+
+    slit_dims : tuple
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     if n_slits == 0:
         return np.ones_like(x)
     horiz_mask = (position < x[0,:]).astype(int)
@@ -72,6 +274,26 @@ def n_slit_barrier(x,y,position,n_slits,slit_dims):
     return np.logical_not((np.logical_not(vert_mask) * horiz_mask)).astype(int)
 
 def corner_barrier(x,y,position,corner_width):
+    """
+    Applies a corner barrier to the wavefunction array. The function
+    takes in the wavefunction array, psi, the position of the barrier, position,
+    and the width of the barrier, corner_width. The function returns the
+    wavefunction matrix with the barrier applied.
+
+    Arguments
+    ----------
+    x : numpy.ndarray
+
+    y : numpy.ndarray
+
+    position : float
+
+    corner_width : float
+
+    Returns
+    -------
+    psi : numpy.ndarray
+    """
     horiz_mask = (position < x[0,:]).astype(int)
     horiz_mask *= (x[0,:] < position + corner_width).astype(int)
     vert_mask = np.heaviside(y - 0.5,1)
