@@ -1,6 +1,8 @@
 # Wave Simulation
 Final project for Computational Physics
 
+## Dependencies
+
 ## Features
 
 ## How to use

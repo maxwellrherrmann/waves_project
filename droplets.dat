@@ -1,0 +1,7 @@
+nx 501
+ny 501
+initial droplet
+centers 0.1 0.5 0.68 0.3 0.45 0.82 0.85 0.1
+widths 0.1 0.1 0.01 0.05
+frequencies 200 100 100 100
+heights 1 2 3 4

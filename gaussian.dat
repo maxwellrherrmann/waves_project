@@ -1,0 +1,7 @@
+nx 501
+ny 501
+initial gaussian
+center 0.5
+width 0.1
+frequency 100
+height 2
