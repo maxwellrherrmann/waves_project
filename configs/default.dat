@@ -1,7 +1,9 @@
 nx 501
 ny 501
-initial standing_drop
-xcenter 0.5
-ycenter 0.5
-frequency 1
-height 10
+initial gaussian
+height 2
+frequency 100
+center 0.5
+xboundary absorbing
+yboundary absorbing
+show True

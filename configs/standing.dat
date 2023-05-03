@@ -5,3 +5,4 @@ xcenter 0.5
 ycenter 0.5
 frequency 1
 height 10
+show True

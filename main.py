@@ -147,7 +147,7 @@ def absorbing_BC_y(psi, psi_prev, r):
     return psi
 
 
-def x_boundary_conditions(psi, psi_prev=None, xtype='n', xf=0, xg=0, dx=0, r=3):
+def x_boundary_conditions(psi, psi_prev=None, xtype='neumann', xf=0, xg=0, dx=0, r=3):
     """
     Applies boundary conditions to the x-boundaries of the wavefunction array.
     The function takes in the wavefunction array, psi, the previous wavefunction
@@ -170,16 +170,16 @@ def x_boundary_conditions(psi, psi_prev=None, xtype='n', xf=0, xg=0, dx=0, r=3):
     -------
     psi : numpy.ndarray
     """
-    if xtype == 'n':
+    if xtype == 'neumann':
         return neumann_BC_x(psi, xf, xg, dx)
-    elif xtype == 'd':
+    elif xtype == 'dirichlet':
         return dirichlet_BC_x(psi, xf, xg, dx)
-    elif xtype == 'a':
+    elif xtype == 'absorbing':
         return absorbing_BC_x(psi, psi_prev, r)
-    raise Exception("xtype and ytype must be either 'n' or 'd' or 'a'")
+    raise Exception("xtype and ytype must be either 'neumann' or 'dirichlet' or 'absorbing'")
 
 
-def y_boundary_conditions(psi, psi_prev=None, ytype='n', yf=0, yg=0, dy=0, r=3):
+def y_boundary_conditions(psi, psi_prev=None, ytype='neumann', yf=0, yg=0, dy=0, r=3):
     """
     Applies boundary conditions to the y-boundaries of the wavefunction array.
     The function takes in the wavefunction array, psi, the previous wavefunction
@@ -202,13 +202,13 @@ def y_boundary_conditions(psi, psi_prev=None, ytype='n', yf=0, yg=0, dy=0, r=3):
     -------
     psi : numpy.ndarray
     """
-    if ytype == 'n':
+    if ytype == 'neumann':
         return neumann_BC_y(psi, yf, yg, dy)
-    elif ytype == 'd':
+    elif ytype == 'dirichlet':
         return dirichlet_BC_y(psi, yf, yg, dy)
-    elif ytype == 'a':
+    elif ytype == 'absorbing':
         return absorbing_BC_y(psi, psi_prev, r)
-    raise Exception("xtype and ytype must be either 'n' or 'd'")
+    raise Exception("xtype and ytype must be either 'neumann' or 'dirichlet' or 'absorbing'")
 
 
 def n_slit_barrier(x, y, position, n_slits, slit_dims):
@@ -294,7 +294,8 @@ if __name__ == "__main__":
 
     # Add arguments to the parser
     parser.add_argument('-c', '--config', required=True)
-    parser.add_argument('-o', '--output')
+    parser.add_argument('-og', '--gifout')
+    parser.add_argument('-op', '--powerout')
     parser.add_argument('-n', '--nsteps', type=int)
     parser.add_argument('--fps', type=int)
     parser.add_argument('--color')
@@ -306,7 +307,8 @@ if __name__ == "__main__":
         exit(1)
 
     config_file = args.config
-    output_file = args.output
+    output_gif_file = args.gifout
+    output_power_file = args.powerout
 
     # Read config file
     with open(config_file, 'r') as f:
@@ -348,25 +350,32 @@ if __name__ == "__main__":
 
     u_0 = np.zeros([nx, ny])
     u_1 = np.zeros_like(u_0)
+
     if initial=='gaussian':
         c = float(config['center'])
         s = float(config['width'])
         w = float(config['frequency'])
         I = float(config['height'])
+
         u_0 = I * np.exp(-(0.5*(grid_x - c)/s) ** 2) * np.cos(w * grid_x)
         u_1 = I * np.exp(-(0.5*(grid_x - c + velocity * dt)/s) ** 2) * np.cos(w * (grid_x + velocity * dt))
+
     elif initial=='standing':
         w = float(config['frequency'])
+
         u_0 = np.heaviside(-grid_x, 1)
         u_1 = np.cos(w * dt) * np.heaviside(velocity * dt - grid_x, 1)
+
     elif initial=='droplet':
         centers = [(config['centers'][i], config['centers'][i+1]) for i in range(0, len(config['centers']), 2)]
         ss = config['widths']
         ws = config['frequencies']
         Is = config['heights']
+
         for i,center in enumerate(centers):
             cx = center[0]
             cy = center[1]
+
             u_0 += Is[i]*np.exp(-0.5 * (((grid_x - cx)/ss[i]) ** 2 + ((grid_y - cy)/ss[i]) ** 2)) * \
                    np.cos( ws[i] * np.sqrt((grid_x - cx) ** 2 + (grid_y - cy) ** 2))
             new_x = grid_x - cx + velocity * dt * (grid_x - cx) / np.sqrt(
@@ -374,6 +383,7 @@ if __name__ == "__main__":
             new_y = grid_y - cy + velocity * dt * (grid_y - cy) / np.sqrt(
                 .00001 + (grid_x - cx) ** 2 + (grid_y - cy) ** 2)
             u_1 += Is[i]*np.exp(-0.5 * ((new_x/ss[i]) ** 2 + (new_y/ss[i]) ** 2)) * np.cos(ws[i] * np.sqrt(new_x ** 2 + new_y ** 2))
+
     elif initial=='standing_drop':
         cx = float(config['xcenter'])
         cy = float(config['ycenter'])
@@ -385,21 +395,41 @@ if __name__ == "__main__":
         new_y = grid_y - cy + velocity * dt * (grid_y - cy) / np.sqrt(.00001 + (grid_x - cx) ** 2 + (grid_y - cy) ** 2)
         u_1 = I*np.cos(w * dt) * np.heaviside(-np.sqrt(new_x ** 2 + new_y ** 2), 1)
 
-    # initialize array
+    # Initialize array
     u = np.array([u_0, u_1, u_1])
+    # if config['xboundary']:
+        # xbc = config['xboundary']
+    # if config['yboundary']:
+        # ybc = config['yboundary']
+
+    # Unclear how to incorporate boundary conditions here. Seems we set something immediately below then something else later?
     for i in range(3):
-        u[i, :, :] = x_boundary_conditions(u[i, :, :], xtype='n')
-        u[i, :, :] = y_boundary_conditions(u[i, :, :], ytype='n')
+        u[i, :, :] = x_boundary_conditions(u[i, :, :], xtype='neumann')
+        u[i, :, :] = y_boundary_conditions(u[i, :, :], ytype='neumann')
 
     # Main body algorithm
+    
+    # For keeping track of the wave at each timestep
     a = []
-    # barrier = n_slit_barrier(grid_x, grid_y, 0.7, 1, (0.1, 0.02))
-    # barrier = corner_barrier(grid_x,grid_y,0.7,0.1)
+
     barrier = np.ones_like(u[0])
-    centers = [(.8,.5),(.8,.4),(.8,.6)]
-    radii = [.05, .05, .05]
-    for center, radius in zip(centers, radii):
-        barrier *= circle_barrier(grid_x, grid_y, center,radius)
+    if 'barrier' in config.keys():
+        barrier_type = config['barrier']
+    else:
+        barrier_type = 'None'
+
+    if barrier_type=='nslit':
+        barrier = n_slit_barrier(grid_x, grid_y, 0.7, 1, (0.1, 0.02))
+
+    elif barrier_type=='corner':
+        barrier = corner_barrier(grid_x,grid_y,0.7,0.1)
+    
+    elif barrier_type=='circles':
+        centers = [(.8,.5),(.8,.4),(.8,.6)]
+        radii = [.05, .05, .05]
+        for center, radius in zip(centers, radii):
+            barrier *= circle_barrier(grid_x, grid_y, center,radius)
+
     for t in range(0, nsteps):
         a.append(np.copy(u[0, :, :]))
         u[2, :, :] = u[1, :, :]
@@ -409,13 +439,13 @@ if __name__ == "__main__":
                                     u[1, 1:nx - 1, 2:ny] - 2 * u[1, 1:nx - 1, 1:ny - 1] + u[1, 1:nx - 1, 0:ny - 2]) * \
                                    (velocity * dt / dx) ** 2
         u[0, :, :] *= barrier
-        u[0, :, :] = x_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], xtype='a', r=2)
-        u[0, :, :] = y_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], ytype='a', r=2)
+        u[0, :, :] = x_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], xtype='absorbing', r=2)
+        u[0, :, :] = y_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], ytype='absorbing', r=2)
 
         if initial=='standing':
-            u += np.cos(100 * t * dt) * np.heaviside(-grid_x, 1)
+            u += I*np.cos(w * t * dt) * np.heaviside(-grid_x, 1)
         if initial=='standing_drop':
-            u += np.cos(100 * t * dt) * np.heaviside(-np.sqrt((grid_x - cx) ** 2 + (grid_y - cy) ** 2), 1)
+            u += I*np.cos(w * t * dt) * np.heaviside(-np.sqrt((grid_x - cx) ** 2 + (grid_y - cy) ** 2), 1)
 
     fig1 = plt.figure()
     fig1.set_dpi(100)
@@ -436,33 +466,35 @@ if __name__ == "__main__":
     # Plot the scalar wave
     def animate(i):
         global k
-        psi = a[k]
+        try:
+            psi = a[k]
+        except IndexError:
+            k=0
+            psi = a[k]
         meshplot.set_array(psi.ravel())
         power_dist.set_xdata(a[k][:, nx - 1] ** 2)
         k += 1
 
 
-    anim = animation.FuncAnimation(fig1, animate, frames=len(a) - 2, interval=10)
-    anim.save('multi_circle_scatt.gif', fps=45)
+    if 'show' in config.keys() or output_gif_file:
+        anim = animation.FuncAnimation(fig1, animate, frames=len(a) - 2, interval=10)
 
-    # Plot the power at the far end of the screen
-    #    power_dist, = ax2.plot(y, np.zeros_like(y), color="red", lw=2)
-    #    def animate2(i):
-    #        power_dist.set_ydata(a[i][:, nx - 1] ** 2)
-    #
-    #
-    #    anim2 = animation.FuncAnimation(fig, animate2, frames=len(a) - 2, interval=10)
-    #    anim2.save('single_slit_power.gif')
+    if 'show' in config.keys():
+        if config['show']:
+            plt.show()
 
-    fig2 = plt.figure()
-    ax3 = fig2.add_subplot(1, 1, 1)
-    ax3.tick_params(left=False, right=False, bottom=False, top=False, labelleft=False, labelbottom=False)
+    if output_gif_file:
+        anim.save(f'{output_gif_file}.gif', fps=30)
 
-    power = []
-    for i in range(len(a)):
-        if max((a[i][:, nx - 1]) ** 2) > 0:
-            power.append(a[i][:, nx - 1] ** 2)
-    ta_power = np.average(power, axis=0)
+    if output_power_file:
+        fig2 = plt.figure()
+        ax3 = fig2.add_subplot(1, 1, 1)
+        ax3.tick_params(left=False, right=False, bottom=False, top=False, labelleft=False, labelbottom=False)
+        power = []
+        for i in range(len(a)):
+            if max((a[i][:, nx - 1]) ** 2) > 0:
+                power.append(a[i][:, nx - 1] ** 2)
+        ta_power = np.average(power, axis=0)
 
-    ax3.plot(y, ta_power)
-    plt.savefig('multi_circle_scatt.png')
+        ax3.plot(y, ta_power)
+        plt.savefig(f'{output_power_file}.png')
