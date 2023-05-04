@@ -7,3 +7,5 @@ center 0.5
 xboundary absorbing
 yboundary absorbing
 show True
+width 0.1
+barrier nslit

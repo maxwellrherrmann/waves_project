@@ -290,9 +290,9 @@ def circle_barrier(x, y, center, r):
 if __name__ == "__main__":
     # Initiate parser for handling commandline arguments
     parser = argparse.ArgumentParser(
-            prog='2DWaveSim',
+            prog='Numerical Solution to 2D Wave Equation',
             description='This program simulates a 2D wave equation solution using the finite difference method.',
-            epilog='Created by: 2DWaveSim Team')
+            epilog='Created by: Keegan Finger, Max Herrmann, Sam Liechty of CU Boulder')
 
     # Add arguments to the parser
     parser.add_argument('-c', '--config', required=True)
@@ -300,7 +300,7 @@ if __name__ == "__main__":
     parser.add_argument('-op', '--powerout')
     parser.add_argument('-n', '--nsteps', type=int)
     parser.add_argument('--fps', type=int)
-    parser.add_argument('--color')
+    parser.add_argument('--cmap')
     args = parser.parse_args()
 
     # Check if config file exists
@@ -316,13 +316,14 @@ if __name__ == "__main__":
     with open(config_file, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
         config = {}
-        special_rows = ['centers', 'widths', 'frequencies', 'heights']
+        special_rows = ['centers', 'widths', 'frequencies', 'heights', 'barrier_centers', 'barrier_radii', 'slit_dims']
         for row in reader:
             if row[0] in special_rows:
                 config[row[0]] = [float(x) for x in row[1:]]
             else:
                 config[row[0]] = row[1]
 
+    # Create constants with values from config or defaults if nothing is provided
     if args.nsteps:
         nsteps = args.nsteps
     elif 'nsteps' in config.keys():
@@ -330,12 +331,12 @@ if __name__ == "__main__":
     else:
         nsteps = 100
 
-    if args.color:
-        color= args.color
-    elif 'color' in config.keys():
-        color= config['color']
+    if args.cmap:
+        cmap= args.cmap
+    elif 'cmap' in config.keys():
+        cmap = config['cmap']
     else:
-        color='viridis'
+        cmap = 'viridis'
 
     nx = int(config['nx'])
     ny = int(config['ny'])
@@ -354,25 +355,52 @@ if __name__ == "__main__":
     u_1 = np.zeros_like(u_0)
 
     if initial=='gaussian':
-        c = float(config['center'])
-        s = float(config['width'])
-        w = float(config['frequency'])
-        I = float(config['height'])
+        if 'center' in config.keys():
+            c = float(config['center'])
+        else:
+            c = 0.5
+        if 'width' in config.keys():
+            s = float(config['width'])
+        else:
+            s = 0.1
+        if 'frequency' in config.keys():
+            w = float(config['frequency'])
+        else:
+            w = 100
+        if 'height' in config.keys():
+            I = float(config['height'])
+        else:
+            I = 2
 
         u_0 = I * np.exp(-(0.5*(grid_x - c)/s) ** 2) * np.cos(w * grid_x)
         u_1 = I * np.exp(-(0.5*(grid_x - c + velocity * dt)/s) ** 2) * np.cos(w * (grid_x + velocity * dt))
 
     elif initial=='standing':
-        w = float(config['frequency'])
+        if 'frequency' in config.keys():
+            w = float(config['frequency'])
+        else:
+            w = 100
 
         u_0 = np.heaviside(-grid_x, 1)
         u_1 = np.cos(w * dt) * np.heaviside(velocity * dt - grid_x, 1)
 
     elif initial=='droplet':
-        centers = [(config['centers'][i], config['centers'][i+1]) for i in range(0, len(config['centers']), 2)]
-        ss = config['widths']
-        ws = config['frequencies']
-        Is = config['heights']
+        if 'centers' in config.keys():
+            centers = [(config['centers'][i], config['centers'][i+1]) for i in range(0, len(config['centers']), 2)]
+        else:
+            centers = [(0.5, 0.5)]
+        if 'widths' in config.keys():
+            ss = config['widths']
+        else:
+            ss = [0.1]*len(centers)/2
+        if 'frequency' in config.keys():
+            ws = config['frequencies']
+        else:
+            ws = [100]*len(centers)/2
+        if 'heights' in config.keys():
+            Is = config['heights']
+        else:
+            Is = [2]*len(centers)/2
 
         for i,center in enumerate(centers):
             cx = center[0]
@@ -387,10 +415,22 @@ if __name__ == "__main__":
             u_1 += Is[i]*np.exp(-0.5 * ((new_x/ss[i]) ** 2 + (new_y/ss[i]) ** 2)) * np.cos(ws[i] * np.sqrt(new_x ** 2 + new_y ** 2))
 
     elif initial=='standing_drop':
-        cx = float(config['xcenter'])
-        cy = float(config['ycenter'])
-        I = float(config['height'])
-        w = float(config['frequency'])
+        if 'xcenter' in config.keys():
+            cx = float(config['xcenter'])
+        else:
+            cx = 0.5
+        if 'ycenter' in config.keys():
+            cy = float(config['ycenter'])
+        else:
+            cy = 0.5
+        if 'height' in config.keys():
+            I = float(config['height'])
+        else:
+            I = 2
+        if 'frequency' in config.keys():
+            w = float(config['frequency'])
+        else:
+            w = 100
 
         u_0 = I*np.heaviside(-np.sqrt((grid_x - cx) ** 2 + (grid_y - cy) ** 2), 1)
         new_x = grid_x - cx + velocity * dt * (grid_x - cx) / np.sqrt(.00001 + (grid_x - cx) ** 2 + (grid_y - cy) ** 2)
@@ -398,13 +438,36 @@ if __name__ == "__main__":
         u_1 = I*np.cos(w * dt) * np.heaviside(-np.sqrt(new_x ** 2 + new_y ** 2), 1)
 
     # Initialize array
-    u = np.array([u_0, u_1, u_1])
-    # if config['xboundary']:
-        # xbc = config['xboundary']
-    # if config['yboundary']:
-        # ybc = config['yboundary']
 
-    # Unclear how to incorporate boundary conditions here. Seems we set something immediately below then something else later?
+    u = np.array([u_0, u_1, u_1])
+
+    if 'xboundary' in config.keys():
+        xbc = config['xboundary']
+
+    else:
+        xbc = 'absorbing'
+
+    if 'yboundary' in config.keys():
+        ybc = config['yboundary']
+
+    else:
+        ybc = 'absorbing'
+
+
+    if xbc=='absorbing':
+        if 'rx' in config.keys():
+            rx = config['rx']
+        else:
+            rx = 2
+
+    if ybc=='absorbing':
+        if 'ry' in config.keys():
+            ry = config['ry']
+        else:
+            ry = 2
+
+
+    # Apply inititial boundary conditions -- for simplicity this is always Neumann
     for i in range(3):
         u[i, :, :] = x_boundary_conditions(u[i, :, :], xtype='neumann')
         u[i, :, :] = y_boundary_conditions(u[i, :, :], ytype='neumann')
@@ -421,16 +484,62 @@ if __name__ == "__main__":
         barrier_type = 'None'
 
     if barrier_type=='nslit':
-        barrier = n_slit_barrier(grid_x, grid_y, 0.7, 1, (0.1, 0.02))
+
+        if 'position' in config.keys():
+            position = float(config['position'])
+        else:
+            position = 0.7
+
+        if 'nslit' in config.keys():
+            try:
+                nslit = int(config['nslit'])
+            except:
+                print('nslit must be an integer. Defaulting to nslit=2')
+                nslit=2
+        else:
+            nslit = 2
+
+        if 'slit_dims' in config.keys():
+            slit_dims = config['slit_dims']
+        else:
+            slit_dims = (0.1, 0.02)
+
+        # barrier = n_slit_barrier(grid_x, grid_y, 0.7, 3, (0.1, 0.02) )
+        barrier = n_slit_barrier(grid_x, grid_y, position, nslit, slit_dims)
 
     elif barrier_type=='corner':
-        barrier = corner_barrier(grid_x,grid_y,0.7,0.1)
+        if 'position' in config.keys():
+            position = float(config['position'])
+        else:
+            position = 0.7
+
+        if 'corner_width' in config.keys():
+            corner_width = float(config['corner_width'])
+        else:
+            corner_width = 0.1
+
+        # barrier = corner_barrier(grid_x,grid_y,0.7,0.1)
+        barrier = corner_barrier(grid_x,grid_y,position,corner_width)
     
     elif barrier_type=='circles':
-        centers = [(.8,.5),(.8,.4),(.8,.6)]
-        radii = [.05, .05, .05]
-        for center, radius in zip(centers, radii):
+        if 'barrier_centers' in config.keys():
+            barrier_centers = [(config['barrier_centers'][i], config['barrier_centers'][i+1]) for i in range(0, len(config['barrier_centers']), 2)]
+        else:
+            barrier_centers = [(.8,.5),(.8,.4),(.8,.6)]
+
+        if 'barrier_radii' in config.keys():
+            barrier_radii = config['barrier_radii']
+        else:
+            barrier_radii = [.05]*len(barrier_centers)
+
+        for center, radius in zip(barrier_centers, barrier_radii):
             barrier *= circle_barrier(grid_x, grid_y, center,radius)
+
+        try:
+            assert(len(barrier_centers)==len(barrier_radii))
+        except:
+            print('barrier_centers and barrier_radii must correspond to a consistent number of circular barriers') 
+            exit(1)
 
     for t in range(0, nsteps):
         a.append(np.copy(u[0, :, :]))
@@ -441,8 +550,8 @@ if __name__ == "__main__":
                                     u[1, 1:nx - 1, 2:ny] - 2 * u[1, 1:nx - 1, 1:ny - 1] + u[1, 1:nx - 1, 0:ny - 2]) * \
                                    (velocity * dt / dx) ** 2
         u[0, :, :] *= barrier
-        u[0, :, :] = x_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], xtype='absorbing', r=2)
-        u[0, :, :] = y_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], ytype='absorbing', r=2)
+        u[0, :, :] = x_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], xtype=xbc, r=rx)
+        u[0, :, :] = y_boundary_conditions(u[0, :, :], psi_prev=u[1, :, :], ytype=ybc, r=ry)
 
         if initial=='standing':
             u += I*np.cos(w * t * dt) * np.heaviside(-grid_x, 1)
@@ -454,7 +563,7 @@ if __name__ == "__main__":
     ax1 = fig1.add_subplot(1, 3, (1, 2))
     ax2 = fig1.add_subplot(1, 3, 3, sharey=ax1)
     psi = np.ones((nx, ny)) * float('nan')
-    meshplot = ax1.pcolormesh(grid_x, grid_y, psi, clim=(-1, 1), cmap=color)
+    meshplot = ax1.pcolormesh(grid_x, grid_y, psi, clim=(-1, 1), cmap=cmap)
     power_dist, = ax2.plot(np.zeros_like(y), y, color="red", lw=2)
     ax1.set_xlim(left=0, right=1)
     ax1.set_ylim(bottom=0, top=1)
@@ -496,6 +605,10 @@ if __name__ == "__main__":
         for i in range(len(a)):
             if max((a[i][:, nx - 1]) ** 2) > 0:
                 power.append(a[i][:, nx - 1] ** 2)
+        if power==[]:
+            print('No power detected on far screen. Try increasing the number of steps. No output power plot generated.')
+            exit(1)
+
         ta_power = np.average(power, axis=0)
 
         ax3.plot(y, ta_power)
