@@ -182,6 +182,6 @@ We validated our simulation by comparing time-averaged diffraction patterns from
 
 Scenario    |   Theory       |  Simulation
 ------------|----------------|----------------
-Single-slit |   ![](pngs/single_slit.png) |  ![](pngs/single_slit.png)
-Double-slit |   ![](pngs/double_slit.png) |  ![](pngs/double_slit.png)
+Single-slit |   ![](pngs/single_slit.png) |  ![](pngs/single_slit_ta_power.png)
+Double-slit |   ![](pngs/double_slit.png) |  ![](pngs/double_slit_ta_power.png)
 Edge    |   ![](pngs/edge.png)      |  ![](pngs/edge.png)
