@@ -38,12 +38,31 @@ This code suite depends on the following Python modules
 - `os`
 
 ## How to use
-Should be able to do something like
-```python main.py --xbc neumann --ybc dirichlet ...```
-etc. Definitely needs 
-```python main.py --help```
-and it might be nice to allow the user to run this from a fixed configuration file
-```python main.py --config config.json```
+The program can be run from the command line with flags etc. Below is the output of the help flag.
+```
+usage: python3 main.py [-h] -c CONFIG [-og GIFOUT] [-op POWEROUT] [-n NSTEPS]
+                       [--fps FPS] [--cmap CMAP]
+
+This program simulates a 2D wave equation solution using the finite difference
+method. The program takes in a config file (examples in the configs/ folder)
+to generate the simulation.
+
+options:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        Config file to be used.
+  -og GIFOUT, --gifout GIFOUT
+                        Name of output gif file.
+  -op POWEROUT, --powerout POWEROUT
+                        Name of output png of time-averaged power plot.
+  -n NSTEPS, --nsteps NSTEPS
+                        Number of time steps to be simulated.
+  --fps FPS             Frames per second of animation.
+  --cmap CMAP           Colormap to be used for animation.
+
+Created by: Keegan Finger, Max Herrmann, Sam Liechty of CU Boulder
+```
+The user must supply a config file (a handful of examples are given in the `configs/` folder) to run the simulation. Fiddling with these should give a good idea of the capabilities of the program. The user can also specify the number of time steps to be simulated, the frames per second of the animation, and the colormap to be used for the animation. The user can also specify the name of the output gif file and the name of the output png of the time-averaged power plot (in absence of a file name for any output, it just won't be created).
 
 ## Stability and Error Analysis
 
