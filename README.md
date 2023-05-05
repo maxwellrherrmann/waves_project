@@ -39,7 +39,7 @@ This code suite depends on the following Python modules
 - `csv`
 - `os`
 
-## How to use
+## How to Use
 The program can be run from the command line with flags etc. Below is the output of the help flag.
 ```
 usage: python3 main.py [-h] -c CONFIG [-og GIFOUT] [-op POWEROUT] [-n NSTEPS]

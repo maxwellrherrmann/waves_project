@@ -461,13 +461,17 @@ if __name__ == "__main__":
 
     if xbc=='absorbing':
         if 'rx' in config.keys():
-            rx = config['rx']
+            rx = float(config['rx'])
+        else:
+            rx = 2
     else:
         rx = 2
 
     if ybc=='absorbing':
         if 'ry' in config.keys():
-            ry = config['ry']
+            ry = float(config['ry'])
+        else:
+            ry = 2
     else:
         ry = 2
 
