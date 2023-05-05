@@ -1,5 +1,7 @@
 # Numerical Solution of the Wave Equation
-![alt-text](examples/double_slit.gif)
+<p align="center">
+  <img src="examples/double_slit.gif" alt="animated" />
+</p>
 
 This python program simulates the propagation of a wave through a two-dimensional medium and visualizes the results. The program supports a handful of initial wave states, barriers, and boundary conditions with a variety of parameters tunable by config file or flag.
 
