@@ -7,7 +7,7 @@ Taking second-order centered-difference for both the temporal and spatial deriva
 
 ```math
 \frac{u^{(n+1)}_{i,j}}{2}
-```math
+```
 
 $$ \frac{u^{(n+1)}_{i,j} - 2u^{(n)}_{i,j} + u^{(n-1)}_{i,j}}{\left(\Delta t\right)^2} = v^2\frac{u^{(n)}_{i+1,j} + u^{(n)}_{i,j+1} - 4u^{(n)}_{i,j} + u^{(n)}_{i-1,j} + u^{(n)}_{i,j-1}}{\left(\Delta x\right)^2}, $$
 
