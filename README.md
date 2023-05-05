@@ -86,4 +86,4 @@ For our case, in two-dimensions,
 
 ## Validation
 We validated our simulation by comparing time-averaged diffraction patterns from our simulation to those from analytical solutions for single-slit diffraction, double-slit diffraction, and corner diffraction. Below are the plots of 'intensity' vs position on the far wall compared to the analytical solutions (purely for qualitative elements). Note that outside the center of the central maxima for n-slit diffraction the results are less satisfactory due to reflections from the boundary of the simulation.
-![alt-text](pdfs/double_slit.pdf)
+![alt-text](pngs/double_slit.pdf)
