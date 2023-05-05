@@ -1,6 +1,8 @@
 # Numerical Solution of the Wave Equation
 ![alt-text](examples/double_slit.gif)
 
+This python program simulates the propagation of a wave through a two-dimensional medium and visualizes the results. The program supports a handful of initial wave states, barriers, and boundary conditions with a variety of parameters tunable by config file or flag.
+
 The homogeneous wave equation is $\frac{\partial^2 u}{\partial t^2} = v^2\frac{\partial^2 u}{\partial \vec{x}^2}$, where $u$ is some solution and $v$ is the velocity of the wave.
 
 We take a finite-difference approach to solving the wave equation in two-dimensions. 
@@ -17,6 +19,31 @@ At each point $(i,j)$, we solve the discretized wave equation for the value of t
 u^{(n)}_{i+1,j} + u^{(n)}_{i,j+1} - 4u^{(n)}_{i,j} + u^{(n)}_{i-1,j} + u^{(n)}_{i,j-1}
 \right].
 ```
+
+## Features
+
+This project includes
+- Neumann, Dirichlet, and absorbing boundary conditions for the simulation box
+- N-slit, corner, and circular barriers for diffraction and scattering
+- Animation of the simulation
+- Extraction of time-averaged diffraction patterns
+
+## Dependencies
+
+This code suite depends on the following Python modules
+- `numpy`
+- `matplotlib`
+- `argparse`
+- `csv`
+- `os`
+
+## How to use
+Should be able to do something like
+```python main.py --xbc neumann --ybc dirichlet ...```
+etc. Definitely needs 
+```python main.py --help```
+and it might be nice to allow the user to run this from a fixed configuration file
+```python main.py --config config.json```
 
 ## Stability and Error Analysis
 
@@ -57,28 +84,6 @@ For our case, in two-dimensions,
 \end{align}
 ```
 
-
-## Dependencies
-
-This code suite depends on the following Python modules
-- `numpy`
-- `matplotlib`
-- `argparse`
-- `csv`
-- `os`
-
-## Features
-
-This project includes
-- Neumann, Dirichlet, and absorbing boundary conditions for the simulation box
-- N-slit, corner, and circular barriers for diffraction and scattering
-- Animation of the simulation
-- Extraction of diffraction patterns, both real-time and time-averaged
-
-## How to use
-Should be able to do something like
-```python main.py --xbc neumann --ybc dirichlet ...```
-etc. Definitely needs 
-```python main.py --help```
-and it might be nice to allow the user to run this from a fixed configuration file
-```python main.py --config config.json```
+## Validation
+We validated our simulation by comparing time-averaged diffraction patterns from our simulation to those from analytical solutions for single-slit diffraction, double-slit diffraction, and corner diffraction. Below are the plots of 'intensity' vs position on the far wall compared to the analytical solutions (purely for qualitative elements). Note that outside the center of the central maxima for n-slit diffraction the results are less satisfactory due to reflections from the boundary of the simulation.
+![alt-text](pdfs/double_slit.pdf)
