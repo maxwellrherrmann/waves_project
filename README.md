@@ -6,10 +6,9 @@ We take a finite-difference approach to solving the wave equation in two-dimensi
 Taking second-order centered-difference for both the temporal and spatial derivatives gives the wave equation in the form
 
 ```math
-\left( \right)
+ \frac{u^{(n+1)}_{i,j} - 2u^{(n)}_{i,j} + u^{(n-1)}_{i,j}}{\left(\Delta t\right)^2} = v^2\frac{u^{(n)}_{i+1,j} + u^{(n)}_{i,j+1} - 4u^{(n)}_{i,j} + u^{(n)}_{i-1,j} + u^{(n)}_{i,j-1}}{\left(\Delta x\right)^2}
 ```
 
-$$ \frac{u^{(n+1)}_{i,j} - 2u^{(n)}_{i,j} + u^{(n-1)}_{i,j}}{\left(\Delta t\right)^2} = v^2\frac{u^{(n)}_{i+1,j} + u^{(n)}_{i,j+1} - 4u^{(n)}_{i,j} + u^{(n)}_{i-1,j} + u^{(n)}_{i,j-1}}{\left(\Delta x\right)^2}, $$
 
 where the superscript $n$ denotes the time step and the subscripts $i,j$ denote the spatial location on the grid. 
 At each point $(i,j)$, we solve the discretized wave equation for the value of the solution function $u$ at that point for the next time step $u_{i,j}^{(n+1)}$ via
