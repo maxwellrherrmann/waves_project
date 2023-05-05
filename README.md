@@ -25,6 +25,7 @@ Satisfying the CFL condition is equivalent to imposing the constraint that the w
 
 The error in the numerical solution compared to the exact solution, also known as the truncation error, can be derived from Taylor series of the wave solution $u$ around a given point. 
 Consider the Taylor series expansions of $u(x_0 + \Delta x,y)$:
+
 ```math
 u(x_0+\Delta x,y) = u(x_0,y) + \left(\Delta x\right)u_x(x_0,y) + \frac{\left(\Delta x\right)^2}{2!}u_{xx}(x_0,y)
 
@@ -41,9 +42,7 @@ To get the second-order centered difference that we use, consider:
 \begin{align}
  u(x_0+\Delta x,y) + u(x_0-\Delta x,y) &= 2u(x_0,y) + \left(\Delta x\right)^2u_{xx}(x_0,y)\\
  &+ \frac{2\left(\Delta x\right)^4}{4!}u_{xxxx}(x_0,y) + \cdots \\
-
- \Rightarrow u_{xx}(x_0,y) &= \frac{u(x_0+\Delta x,y) + u(x_0-\Delta x,y)\\
- &- 2u(x_0,y)}{\left(\Delta x\right)^2} + \mathcal{O}\left(\Delta x^2\right) 
+ \Rightarrow u_{xx}(x_0,y) &= \frac{u(x_0+\Delta x,y) + u(x_0-\Delta x,y)- 2u(x_0,y)}{\left(\Delta x\right)^2} + \mathcal{O}\left(\Delta x^2\right) 
 \end{align}
 ```
 For our case, in two-dimensions,
