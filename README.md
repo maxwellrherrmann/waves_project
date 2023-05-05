@@ -62,7 +62,7 @@ options:
 
 Created by: Keegan Finger, Max Herrmann, Sam Liechty of CU Boulder
 ```
-The user must supply a config file (a handful of examples are given in the `configs/` folder) to run the simulation. Fiddling with these should give a good idea of the capabilities of the program. The user can also specify the number of time steps to be simulated, the frames per second of the animation, and the colormap to be used for the animation. The user can also specify the name of the output gif file and the name of the output png of the time-averaged power plot (in absence of a file name for any output, it just won't be created).
+The user must supply a config file in `.dat` format (a handful of examples are given in the `configs/` folder) to run the simulation. Fiddling with these should give a good idea of the capabilities of the program. The user can also specify the number of time steps to be simulated, the frames per second of the animation, and the colormap to be used for the animation. The user can also specify the name of the output gif file and the name of the output png of the time-averaged power plot (in absence of a file name for any output, it just won't be created).
 
 In the config file, the user can specify the following parameters:
 
