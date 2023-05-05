@@ -590,6 +590,15 @@ if __name__ == "__main__":
 
     # Plot the scalar wave
     def animate(i):
+        '''
+        A function used as a helper function to animate the wave-function
+        solution. It only takes as an unused parameter, i, to track the index
+        of animation frames. The function does not return anything, but the
+        animation function itself keeps track of all frames
+        Arguments
+        ----------
+        i: unused index to track animation frames
+        '''
         global k
         try:
             psi = a[k]
