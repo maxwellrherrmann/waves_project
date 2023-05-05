@@ -1,4 +1,5 @@
 # Numerical Solution of the Wave Equation
+![alt-text](https://github.com/maxwellrherrmann/waves_project/blob/main/examples/double_slit.gif)
 
 The homogeneous wave equation is $\frac{\partial^2 u}{\partial t^2} = v^2\frac{\partial^2 u}{\partial \vec{x}^2}$, where $u$ is some solution and $v$ is the velocity of the wave.
 
