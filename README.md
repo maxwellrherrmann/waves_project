@@ -38,14 +38,20 @@ and $u(x_0 - \Delta x,y)$:
 ```
 To get the second-order centered difference that we use, consider:
 ```math
- u(x_0+\Delta x,y) + u(x_0-\Delta x,y) = 2u(x_0,y) + \left(\Delta x\right)^2u_{xx}(x_0,y) + \frac{2\left(\Delta x\right)^4}{4!}u_{xxxx}(x_0,y) + \cdots 
+\begin{align}
+ u(x_0+\Delta x,y) + u(x_0-\Delta x,y) &= 2u(x_0,y) + \left(\Delta x\right)^2u_{xx}(x_0,y)\\
+ &+ \frac{2\left(\Delta x\right)^4}{4!}u_{xxxx}(x_0,y) + \cdots \\
 
- \Rightarrow u_{xx}(x_0,y) = \frac{u(x_0+\Delta x,y) + u(x_0-\Delta x,y) - 2u(x_0,y)}{\left(\Delta x\right)^2} + \mathcal{O}\left(\Delta x^2\right) 
+ \Rightarrow u_{xx}(x_0,y) &= \frac{u(x_0+\Delta x,y) + u(x_0-\Delta x,y)\\
+ &- 2u(x_0,y)}{\left(\Delta x\right)^2} + \mathcal{O}\left(\Delta x^2\right) 
+\end{align}
 ```
 For our case, in two-dimensions,
 ```math
 \begin{align}
-     \Delta_h u - \Delta u &= u^{(h)}_{xx} + u^{(h)}_{yy} - u_{xx} - u_{yy} = u_{xx} + \mathcal{O}\left(\Delta x^2\right) + u_{yy} + \mathcal{O}\left(\Delta x^2\right) - u_{xx} - u_{yy} = \mathcal{O}\left(\Delta x^2\right)\\
+     \Delta_h u - \Delta u &= u^{(h)}_{xx} + u^{(h)}_{yy} - u_{xx} - u_{yy}\\
+     &= u_{xx} + \mathcal{O}\left(\Delta x^2\right) + u_{yy} + \mathcal{O}\left(\Delta x^2\right) - u_{xx} - u_{yy}\\
+     &= \mathcal{O}\left(\Delta x^2\right)\\
      \partial_{t}^{(h)2} u - \partial_{t}^2 u &= u^{(h)}_{tt}- u_{tt} = u_{tt} + \mathcal{O}\left(\Delta t^2\right) - u_{tt} = \mathcal{O}\left(\Delta t^2\right)\\
     \delta u &= \mathcal{O}\left(\Delta x^2\right) + \mathcal{O}\left(\Delta t^2\right)
 \end{align}
