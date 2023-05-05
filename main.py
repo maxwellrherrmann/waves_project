@@ -398,7 +398,7 @@ if __name__ == "__main__":
             ss = config['widths']
         else:
             ss = [0.1]*len(centers)/2
-        if 'frequency' in config.keys():
+        if 'frequencies' in config.keys():
             ws = config['frequencies']
         else:
             ws = [100]*len(centers)

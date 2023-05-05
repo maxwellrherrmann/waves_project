@@ -64,6 +64,51 @@ Created by: Keegan Finger, Max Herrmann, Sam Liechty of CU Boulder
 ```
 The user must supply a config file (a handful of examples are given in the `configs/` folder) to run the simulation. Fiddling with these should give a good idea of the capabilities of the program. The user can also specify the number of time steps to be simulated, the frames per second of the animation, and the colormap to be used for the animation. The user can also specify the name of the output gif file and the name of the output png of the time-averaged power plot (in absence of a file name for any output, it just won't be created).
 
+In the config file, the user can specify the following parameters:
+- `nx`: number of spatial steps in the x direction
+- `ny`: number of spatial steps in the y direction
+- `initial`: initial wave state (can choose from `gaussian`, `droplet`, `standing`, and `standing_drop`
+-`show`: whether or not to show the animation as it is being generated
+-`barrier`: specify the type of barrier (can choose from `nslit`, `corner`, and `circle`)
+-`xboundary`, `yboundary`: specify the type of boundary condition (can choose from `neumann`, `dirichlet`, and `absorbing`) obeyed at the edge of the simulation
+
+A number of options are available for each of the choices of `initial` and `barrier` (in the absence of further user input there will be defaults). For `gaussian` initial states the user can specify
+-`center`: the center of the gaussian packet (default is the center of the simulation box)
+-`width`: the width of the gaussian packet (default is 0.1)
+-`frequency`: the frequency of the gaussian packet (default is 100)
+-`height`: the height of the gaussian packet (default is 2)
+
+For `standing` initial states the user can specify
+-`frequency`: the frequency of the standing wave (default is 100)
+-`height`: the height of the standing wave (default is 2)
+
+For `droplet` initial states the user can specify (noting multiple droplets can be specified)
+-`centers`: the centers of the droplets in the format `x0 y0 x1 y1 ...`
+-`widths`: the widths of the droplets in the format `s0 s1 ...`
+-`frequenies`: the frequencies of the droplets in the format `w0 w1 ...`
+-`heights`: the heights of the droplets in the format `I0 I1 ...`
+
+For `standing_drop` initial states the user can specify
+-`xcenter`: the x center of the standing wave (defaults to center)
+-`ycenter`: the y center of the standing wave (defaults to center)
+-`height`: the height of the standing wave (defaults to 2)
+-`frequency`: the frequency of the standing wave (defaults to 100)
+
+For `nslit` barriers the user can specify
+-`nslit`: the number of slits in the barrier (defaults to 2)
+-`position`: the position of the barrier (defaults to 0.7)
+-`slit_dims`: the dimensions of the slits in the format `width depth` (defaults to `0.1 0.02`)
+
+For `corner` barriers the user can specify
+-`position`: the position of the barrier (defaults to 0.7)
+-`corner_width`: the width of the corner (defaults to 0.1)
+
+For `circle` barriers the user can specify multiple circles
+-`barrier_centers`: the centers of the circles in the format `x0 y0 x1 y1 ...`
+-`barrier_radii`: the radii of the circles in the format `r0 r1 ...`
+
+Finally for `absorbing` boundary conditions the user can specify a coefficient `r` related to how the walls absorb (defaults to 2)
+
 ## Stability and Error Analysis
 
 The numerical stability of the numerical scheme presented here is most quickly evaluated through an examination of the Courant-Friedrichs-Lewy (CFL) condition. 
