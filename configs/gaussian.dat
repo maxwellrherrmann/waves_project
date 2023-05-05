@@ -1,9 +1,12 @@
 nx 501
 ny 501
 initial gaussian
-center 0.1
-width 0.01
+center 0.5
+width 0.1
 frequency 100
 height 2
 show True
-barrier circles
+barrier nslit
+nslit 3
+slit_dims 0.1 0.02
+position 0.7

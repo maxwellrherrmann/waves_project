@@ -6,3 +6,6 @@ widths 0.1 0.1 0.01 0.05
 frequencies 200 100 100 100
 heights 1 2 3 4
 show True
+barrier circles
+barrier_centers 0.8 0.1 0.8 0.3 0.1 0.9
+barrier_radii 0.1 0.1 0.1

@@ -1,8 +1,11 @@
-nx 501
-ny 501
+nx 201
+ny 201
 initial standing_drop
-xcenter 0.5
-ycenter 0.5
+xcenter 0.3
+ycenter 0.1
 frequency 100
-height 10
+height 5
 show True
+nsteps 500
+xboundary neumann
+yboundary neumann

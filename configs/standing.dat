@@ -1,8 +1,10 @@
-nx 501
-ny 501
-initial standing_drop
-xcenter 0.5
-ycenter 0.5
-frequency 1
-height 10
+nx 201
+ny 201
+initial standing
+frequency 100
+height 2
 show True
+barrier corner
+position 0.2
+corner_width 0.1
+nsteps 500

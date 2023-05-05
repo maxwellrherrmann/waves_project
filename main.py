@@ -290,17 +290,17 @@ def circle_barrier(x, y, center, r):
 if __name__ == "__main__":
     # Initiate parser for handling commandline arguments
     parser = argparse.ArgumentParser(
-            prog='Numerical Solution to 2D Wave Equation',
-            description='This program simulates a 2D wave equation solution using the finite difference method.',
+            prog='python3 main.py',
+            description='This program simulates a 2D wave equation solution using the finite difference method. The program takes in a config file (examples in the configs/ folder) to generate the simulation.',
             epilog='Created by: Keegan Finger, Max Herrmann, Sam Liechty of CU Boulder')
 
     # Add arguments to the parser
-    parser.add_argument('-c', '--config', required=True)
-    parser.add_argument('-og', '--gifout')
-    parser.add_argument('-op', '--powerout')
-    parser.add_argument('-n', '--nsteps', type=int)
-    parser.add_argument('--fps', type=int)
-    parser.add_argument('--cmap')
+    parser.add_argument('-c', '--config', required=True, help="Config file to be used.")
+    parser.add_argument('-og', '--gifout', help="Name of output gif file.")
+    parser.add_argument('-op', '--powerout', help="Name of output png of time-averaged power plot.")
+    parser.add_argument('-n', '--nsteps', type=int, help="Number of time steps to be simulated.")
+    parser.add_argument('--fps', type=int, help="Frames per second of animation.")
+    parser.add_argument('--cmap', help="Colormap to be used for animation.")
     args = parser.parse_args()
 
     # Check if config file exists
@@ -381,6 +381,11 @@ if __name__ == "__main__":
         else:
             w = 100
 
+        if 'height' in config.keys():
+            I = float(config['height'])
+        else:
+            I = 2
+
         u_0 = np.heaviside(-grid_x, 1)
         u_1 = np.cos(w * dt) * np.heaviside(velocity * dt - grid_x, 1)
 
@@ -396,11 +401,11 @@ if __name__ == "__main__":
         if 'frequency' in config.keys():
             ws = config['frequencies']
         else:
-            ws = [100]*len(centers)/2
+            ws = [100]*len(centers)
         if 'heights' in config.keys():
             Is = config['heights']
         else:
-            Is = [2]*len(centers)/2
+            Is = [2]*len(centers)
 
         for i,center in enumerate(centers):
             cx = center[0]
@@ -457,14 +462,14 @@ if __name__ == "__main__":
     if xbc=='absorbing':
         if 'rx' in config.keys():
             rx = config['rx']
-        else:
-            rx = 2
+    else:
+        rx = 2
 
     if ybc=='absorbing':
         if 'ry' in config.keys():
             ry = config['ry']
-        else:
-            ry = 2
+    else:
+        ry = 2
 
 
     # Apply inititial boundary conditions -- for simplicity this is always Neumann
