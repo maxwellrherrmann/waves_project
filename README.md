@@ -61,6 +61,8 @@ options:
                         Number of time steps to be simulated.
   --fps FPS             Frames per second of animation.
   --cmap CMAP           Colormap to be used for animation.
+  -v VERBOSE, --verbose VERBOSE
+                        Detailed documentation of runtime and number of timesteps between norm calculation
 
 Created by: Keegan Finger, Max Herrmann, Sam Liechty of CU Boulder
 ```
