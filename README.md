@@ -184,4 +184,4 @@ Scenario    |   Theory       |  Simulation
 ------------|----------------|----------------
 Single-slit |   ![](pngs/single_slit.png) |  ![](pngs/single_slit_ta_power.png)
 Double-slit |   ![](pngs/double_slit.png) |  ![](pngs/double_slit_ta_power.png)
-Edge    |   ![](pngs/edge.png)      |  ![](pngs/edge.png)
+Edge    |   ![](pngs/edge.png)      |  ![](pngs/edge_ta_power.png)
