@@ -5,6 +5,25 @@ import argparse
 import csv
 import os
 
+def norm(psi):
+    """
+    Calculates the L2 norm of the wavefuntion array. The function takes in
+    the wavefunction array, psi. The function returns the L2 norm of the
+    wavefunction array.
+    Arguments
+    ----------
+    psi : numpy.ndarray
+    Returns
+    -------
+    norm : float
+    """
+    norm = 0
+    for line in psi:
+        for point in line:
+            norm += point**2
+    norm = np.sqrt(norm)
+    return norm
+
 
 def neumann_BC_y(psi, f=0, g=0, dx=0.01):
     """
@@ -295,6 +314,7 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--nsteps', type=int, help="Number of time steps to be simulated.")
     parser.add_argument('--fps', type=int, help="Frames per second of animation.")
     parser.add_argument('--cmap', help="Colormap to be used for animation.")
+    parser.add_argument('-v', '--verbose', type=int, help='Detailed documentation of runtime and number of timesteps between norm calculation')
     args = parser.parse_args()
 
     # Check if config file exists
@@ -307,6 +327,8 @@ if __name__ == "__main__":
     output_power_file = args.powerout
 
     # Read config file
+    if args.verbose:
+        print('Using', config_file, 'as configuration file...')
     with open(config_file, 'r') as f:
         reader = csv.reader(f, delimiter=' ')
         config = {}
@@ -318,6 +340,8 @@ if __name__ == "__main__":
                 config[row[0]] = row[1]
 
     # Create constants with values from config or defaults if nothing is provided
+    if args.verbose:
+        print('Setting up simulation parameters...')
     if args.nsteps:
         nsteps = args.nsteps
     elif 'nsteps' in config.keys():
@@ -341,6 +365,11 @@ if __name__ == "__main__":
     dx = 1 / nx
     dy = 1 / ny
     dt = dx / 2
+    try:
+        assert (((velocity * dt / dx) < 1) and ((velocity * dt / dy) < 1))
+    except:
+        print('CFL condition (velocity * dt / dx) must be less than 1 for convergent result.')
+        exit(1)
 
     # Initial condition options
     initial = config['initial']
@@ -443,7 +472,10 @@ if __name__ == "__main__":
         new_y = grid_y - cy + velocity * dt * (grid_y - cy) / np.sqrt(.00001 + (grid_x - cx) ** 2 + (grid_y - cy) ** 2)
         u_1 = I * np.cos(w * dt) * np.heaviside(-np.sqrt(new_x ** 2 + new_y ** 2), 1)
 
-    # Initialize array
+    # Initialize wavefunction
+
+    if args.verbose:
+        print('Initializing wavefuntion...')
 
     u = np.array([u_0, u_1, u_1])
 
@@ -486,6 +518,8 @@ if __name__ == "__main__":
     a = []
 
     # create barrier
+    if args.verbose:
+        print('Initializing barrier...')
     barrier = np.ones_like(u[0])
     if 'barrier' in config.keys():
         barrier_type = config['barrier']
@@ -552,6 +586,8 @@ if __name__ == "__main__":
             exit(1)
 
     # Finite difference method for solving differential equations
+    if args.verbose:
+        print('Commencing time iteration up to', nsteps, 'time steps')
     for t in range(0, nsteps):
         a.append(np.copy(u[0, :, :]))
         u[2, :, :] = u[1, :, :]
@@ -571,6 +607,9 @@ if __name__ == "__main__":
             u += I * np.cos(w * t * dt) * np.heaviside(-grid_x, 1)
         if initial == 'standing_drop':
             u += I * np.cos(w * t * dt) * np.heaviside(-np.sqrt((grid_x - cx) ** 2 + (grid_y - cy) ** 2), 1)
+
+        if t % args.verbose == 0:
+            print('Wavefunction norm:', norm(u[0,:,:]))
 
     # settings to plot the figures
     fig1 = plt.figure()
@@ -611,6 +650,8 @@ if __name__ == "__main__":
 
     # choose which plots to show and/or save
     if 'show' in config.keys() or output_gif_file:
+        if args.verbose:
+            print('Animating your wavefunction...')
         anim = animation.FuncAnimation(fig1, animate, frames=len(a) - 2, interval=10)
 
     if 'show' in config.keys():
@@ -618,9 +659,13 @@ if __name__ == "__main__":
             plt.show()
 
     if output_gif_file:
+        if args.verbose:
+            print('Saving your animation to',output_gif_file + '.gif...')
         anim.save(f'{output_gif_file}.gif', fps=30)
 
     if output_power_file:
+        if args.verbose:
+            print('Saving time-averaged power on far screen to',output_power_file + '.gif...')
         fig2 = plt.figure()
         ax3 = fig2.add_subplot(1, 1, 1)
         ax3.tick_params(left=False, right=False, bottom=False, top=False, labelleft=False, labelbottom=False)
